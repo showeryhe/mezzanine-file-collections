@@ -1,7 +1,19 @@
+from __future__ import unicode_literals
+from future.builtins import str
+from future.utils import native
 from string import punctuation
-from urllib import unquote
+# from urllib import unquote
 
+from io import BytesIO
+import os
+from string import punctuation
+from chardet import detect as charsetdetect
+
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
@@ -43,7 +55,8 @@ class MediaFile(Orderable):
         file name.
         """
         if not self.id and not self.description:
-            name = unquote(self.file.url).split("/")[-1].rsplit(".", 1)[0]
+            name = force_text(self.file)
+            name = name.rsplit("/")[-1].rsplit(".", 1)[0]
             name = name.replace("'", "")
             name = "".join([c if c not in punctuation else " " for c in name])
             # str.title() doesn't deal with unicode very well.
